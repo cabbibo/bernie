@@ -2,8 +2,11 @@ uniform float stepDepth;
 uniform float oscillationSize;
 uniform vec3 lightPos;
 uniform sampler2D t_text;
+uniform sampler2D t_noise;
 
 uniform float time;
+
+uniform float hovered;
 
 varying mat3 vINormMat;
 
@@ -62,7 +65,9 @@ vec4 volumeColor( vec3 ro , vec3 rd , mat3 iBasis ){
 
 
   vec4 fC = vec4( col , 1. ) / float( STEPS );
-   return vec4( fC.xyz , 1.);
+
+  fC.xyz = mix( fC.xyz , vec3( 1. ) - fC.xyz , hovered );
+   return vec4(  fC.xyz , 1.);
 
 
 }
@@ -89,6 +94,11 @@ void main(){
   vec4 aCol = texture2D( t_text, vUv );
 
   col = volCol.xyz;
+
+  vec4 c = texture2D( t_noise , vUv );
+  //col *= c.xyz;
+  if( .5 - abs((vUv.x-.5)) < .01 + c.z * .1  ){ discard; };
+  if( .5 - abs((vUv.y-.5)) < .01 + c.z * .1  ){ discard; };
 
   gl_FragColor =  vec4( col  , 1.  );
 

@@ -78,6 +78,8 @@
       var text = THREE.ImageUtils.loadTexture('BERNIESDF.png');
       var twitText = THREE.ImageUtils.loadTexture('twitter_2.png');
       var fbText = THREE.ImageUtils.loadTexture('facebook_2.png');
+      var infoText = THREE.ImageUtils.loadTexture('info_1.png');
+      var noise = THREE.ImageUtils.loadTexture('img/noise.jpg');
 
       var uniforms = {
 
@@ -85,8 +87,10 @@
 
         t_matcap:{ type:"t" , value: matcap },
         t_text:{type:"t", value:text},
+        t_noise:{type:"f",value:noise},
         //t_audio:{type:"t",value:null},
-        stepDepth:{ type:"f" , value: .07 },
+        hovered:{type:"f", value:0},
+        stepDepth:{ type:"f" , value: .7 },
         oscillationSize:{ type:"f" , value: 30. },
         lightPos:{ type:"v3" , value: new THREE.Vector3( 2 , 0 , 0 ) },
 
@@ -135,6 +139,25 @@
 
       }.bind( aFBuff));
 
+      var bernBuff = new AudioBuffer( audio , "audio/slipperySound.mp3" );
+ 
+      bernBuff.addLoadEvent(function(){
+    
+        console.log( this );
+        bernSound = new BufferedAudio( this.buffer , audio.ctx , audio.gain , false );
+
+      }.bind( bernBuff));
+
+      var infoBuff = new AudioBuffer( audio , "audio/tangSound.mp3" );
+ 
+      infoBuff.addLoadEvent(function(){
+    
+        console.log( this );
+        infoSound = new BufferedAudio( this.buffer , audio.ctx , audio.gain , false );
+
+      }.bind( infoBuff));
+
+
 
 
     //audioBuffers.push( aBuff );
@@ -164,8 +187,6 @@
         clock = new THREE.Clock();
 
 
-       
-
         var dir = [
 
           //[1,0,0],
@@ -179,25 +200,73 @@
 
         cube = new THREE.Object3D();
 
-        for( var i = 0; i < dir.length; i++ ){
 
-          var m = Hologram( 
-              geometry, 
-              uniforms,
-              shaders.vertexShaders.hologram,
-              shaders.fragmentShaders.hologram
-           );
+        var m = Hologram( 
+            geometry, 
+            uniforms,
+            shaders.vertexShaders.hologram,
+            shaders.fragmentShaders.hologram
+         );
 
-          m.position.x = 0; 
-          m.position.y = 0; 
-          m.position.z = 0.001; 
- 
-          m.lookAt( new THREE.Vector3() );
-          cube.add( m );
-          meshes.push( m );
+        m.position.x = 0; 
+        m.position.y = 0; 
+        m.position.z = .00001; 
 
+        m.lookAt( new THREE.Vector3() );
+        cube.add( m );
+        meshes.push( m );
+
+
+
+        // Bern holo
+
+        var u = {
+
+          time: uniforms.time, 
+
+          t_matcap:{ type:"t" , value: matcap },
+          t_text:{type:"t", value:text},
+          hovered:{type:"f", value:0},
+          t_noise:{type:"t",value:noise},
+          //t_audio:{type:"t",value:null},
+          stepDepth:{ type:"f" , value: .07 },
+          oscillationSize:{ type:"f" , value: 30. },
+          lightPos:{ type:"v3" , value: new THREE.Vector3( 2 , 0 , 0 ) },
 
         }
+
+        geometry = new THREE.PlaneGeometry( .46, .21 );
+        geometry.computeTangents();
+
+        var m = Hologram( 
+            geometry, 
+            u,
+            shaders.vertexShaders.hologram,
+            shaders.fragmentShaders.hologram
+         );
+
+        m.position.x = 0; 
+        m.position.y = 0; 
+        m.position.z = 0.001; 
+
+        m.lookAt( new THREE.Vector3() );
+        cube.add( m );
+        meshes.push( m );
+
+        m.hoverOver = function(){
+          blip();
+          this.material.uniforms.hovered.value = 1;
+          if( bernSound ){ bernSound.play();}
+
+        }
+        m.hoverOut = function(){
+
+          this.material.uniforms.hovered.value = 0;
+
+        }
+        objectControls.add( m );
+
+
 
         var u = {
 
@@ -205,6 +274,8 @@
 
           t_matcap:{ type:"t" , value: matcap },
           t_text:{type:"t", value:twitText},
+          hovered:{type:"f", value:0},
+          t_noise:uniforms.t_noise,
           //t_audio:{type:"t",value:null},
           stepDepth:{ type:"f" , value: .07 },
           oscillationSize:{ type:"f" , value: 30. },
@@ -233,8 +304,14 @@
 
         m2.hoverOver = function(){
           blip();
-          console.log('ss');
+          this.material.uniforms.hovered.value = 1;
           if( twitSound ){ twitSound.play();}
+        }
+
+        m2.hoverOut = function(){
+
+          this.material.uniforms.hovered.value = 0;
+
         }
         objectControls.add( m2 );
 
@@ -248,6 +325,8 @@
 
           t_matcap:{ type:"t" , value: matcap },
           t_text:{type:"t", value:fbText},
+          t_noise:uniforms.t_noise,
+          hovered:{type:"f", value:0},
           //t_audio:{type:"t",value:null},
           stepDepth:{ type:"f" , value: .07 },
           oscillationSize:{ type:"f" , value: 30. },
@@ -276,10 +355,70 @@
 
         m2.hoverOver = function(){
           blip();
-          console.log('ss');
+          this.material.uniforms.hovered.value = 1;
           if( fbSound ){ fbSound.play();}
         }
+
+        m2.hoverOut = function(){
+
+          this.material.uniforms.hovered.value = 0;
+
+        }
         objectControls.add( m2 );
+
+        //m2.lookAt( new THREE.Vector3() );
+        cube.add( m2 );
+        meshes.push( m2 );
+
+
+        var u = {
+
+          time: uniforms.time, 
+
+          t_matcap:{ type:"t" , value: matcap },
+          t_text:{type:"t", value:infoText},
+          t_noise:uniforms.t_noise,
+          hovered:{type:"f", value:0},
+          //t_audio:{type:"t",value:null},
+          stepDepth:{ type:"f" , value: .07 },
+          oscillationSize:{ type:"f" , value: 30. },
+          lightPos:{ type:"v3" , value: new THREE.Vector3( 2 , 0 , 0 ) },
+
+        }
+
+        geometry = new THREE.PlaneGeometry( .5 , .5 );
+        geometry.computeTangents();
+        var m2 = Hologram( 
+            geometry, 
+            u,
+            shaders.vertexShaders.hologram,
+            shaders.fragmentShaders.hologram
+         );
+
+        m2.position.x = .0; 
+        m2.position.y = -.1; 
+        m2.position.z = 0.06; 
+
+        m2.scale.x = .2;
+        m2.scale.y = .2;
+        m2.scale.z = .2;
+
+        m2.rotation.y = Math.PI;
+
+        m2.hoverOver = function(){
+          blip();
+          this.material.uniforms.hovered.value = 1;
+          if( infoSound ){ infoSound.play();}
+        }
+
+        m2.hoverOut = function(){
+
+          this.material.uniforms.hovered.value = 0;
+
+        }
+        objectControls.add( m2 );
+
+
 
         //m2.lookAt( new THREE.Vector3() );
         cube.add( m2 );
