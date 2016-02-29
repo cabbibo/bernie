@@ -1,37 +1,62 @@
 <html>
 
+
   <head>
+
+      <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    
+    <meta name="twitter:card" content="photo">
+    <meta name="twitter:site" content="@cabbibo">
+    <meta name="twitter:creator" content="@cabbibo">
+    <meta name="twitter:url" content="http://cabbi.bo/bernie">
+    <meta name="twitter:title" content="#FeelTheBern">
+    <meta name="twitter:description" content="#FeelTheBern">
+    <meta name="twitter:creator" content="@cabbibo">
+    <meta name="twitter:image" content="http://cabbi.bo/bernie/image.png">
+    <meta name="twitter:image:width" content="1440">
+    <meta name="twitter:image:height" content="900">
+    <meta name="twitter:domain" content="cabbi.bo">
+    <meta itemprop="name" content="Cabbi.bo">
+    <meta itemprop="description" content="#FeelTheBern">
+    <meta itemprop="image" src="http://cabbi.bo/bernie/image.png">
+    <meta property="og:title" content="Cabbi.bo">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="http://cabbi.bo/bernie/image.png"/>
+    <meta property="og:site_name" content="Cabbi.bo">
+    <meta property="og:description" content="#FeelTheBern">
+
     <style>
       body{ margin: 0px; background: #000; }
       #howTo{
         z-index: 99;
         position:absolute;
         
-        right:0px;
-        width: 70%;
-        height:70%;
-        left:15%;
-        bottom:15%;
+        //right:0px;
+        width: 100%;
+        //height:70%;
+        //left:15%;
+        //bottom:0%;
         text-align: center;
         font-family: "GeoSans";
-        background: rgba( 255,255,255, 0);
-        border: 3px solid white;
+        //background: rgba( 255,255,255, 0);
+        //border: 3px solid white;
         padding:20px;
+        font-size: 100px;
          /* Hide the text. */
-        text-indent: 100%;
-        white-space: nowrap;
-        overflow: hidden;
+        //text-indent: 100%;
+       // white-space: nowrap;
+       // overflow: hidden;
 
-        visibility: hidden;
+        //visibility: hidden;
 
       }
-      #howTo:hover{
-        background: rgba(255, 255,255,.5);
-        /* Hide the text. */
-        text-indent: 0%;
-        white-space: normal;
-        overflow: initial;
-      }
+      //#howTo:hover{
+      //  background: rgba(255, 255,255,.5);
+      //  /* Hide the text. */
+      //  text-indent: 0%;
+      //  white-space: normal;
+      //  overflow: initial;
+      //}
       a{
         text-decoration: none;
         color:#000;
@@ -50,7 +75,7 @@
 
   <body>
 
-    <a href="http://voteforbernie.org/"><div id="howTo">Click here to learn how to vote for Bernie Sanders in your state</div></a>
+    <div id="howTo"></div>
 
     <script src="lib/three.min.js">             </script>
     <script src="lib/jquery.min.js">            </script>
@@ -71,6 +96,7 @@
 
     <script>
 
+      var howTo = document.getElementById("howTo");
 
 
 
@@ -257,12 +283,18 @@
           blip();
           this.material.uniforms.hovered.value = 1;
           if( bernSound ){ bernSound.play();}
+          howTo.innerHTML = "Contribute to Bernie's Campaign!";
 
         }
         m.hoverOut = function(){
+          howTo.innerHTML = "";
 
           this.material.uniforms.hovered.value = 0;
 
+        }
+
+        m.select = function(){
+          window.location = "https://go.berniesanders.com/page/content/contribute/"
         }
         objectControls.add( m );
 
@@ -306,12 +338,18 @@
           blip();
           this.material.uniforms.hovered.value = 1;
           if( twitSound ){ twitSound.play();}
+          howTo.innerHTML = "Share On Twitter!";
         }
 
         m2.hoverOut = function(){
+          howTo.innerHTML = "";
 
           this.material.uniforms.hovered.value = 0;
 
+        }
+
+        m2.select = function(){
+          window.location = "http://twitter.com/share?text=%23FeelTheBern%20:%20&url=http://cabbi.bo/bernie"
         }
         objectControls.add( m2 );
 
@@ -357,12 +395,17 @@
           blip();
           this.material.uniforms.hovered.value = 1;
           if( fbSound ){ fbSound.play();}
+          howTo.innerHTML = "Share On Facebook!";
         }
 
         m2.hoverOut = function(){
+          howTo.innerHTML = "";
 
           this.material.uniforms.hovered.value = 0;
 
+        }
+        m2.select = function(){
+          window.location = "http://www.facebook.com/sharer.php?u=http://cabbi.bo/bernie"
         }
         objectControls.add( m2 );
 
@@ -409,12 +452,16 @@
           blip();
           this.material.uniforms.hovered.value = 1;
           if( infoSound ){ infoSound.play();}
+          howTo.innerHTML = "Learn How to Vote for Bernie!";
         }
 
         m2.hoverOut = function(){
-
+          howTo.innerHTML = "";
           this.material.uniforms.hovered.value = 0;
 
+        }
+        m2.select = function(){
+          window.location = "http://voteforbernie.org/"
         }
         objectControls.add( m2 );
 
