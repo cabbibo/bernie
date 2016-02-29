@@ -55,7 +55,7 @@ vec4 volumeColor( vec3 ro , vec3 rd , mat3 iBasis ){
     
     //col *= ((lu+.8)/.9);
 
-    if( lu + t.a > (-p.x  * 5.) + ( .8 + .2 * sin( time * .37 ) + .4 * sin( time * .1 )) ){ col =  float( STEPS ) * normalize( col );  break; }
+    if( lu + t.a > (-p.x  * (4. + 3. *sin(time * .3))) + ( .8 + .2 * sin( time * .37 ) + .4 * sin( time * .1 )) ){ col =  float( STEPS ) * normalize( col );  break; }
 
   } 
 

@@ -6,24 +6,36 @@
       #howTo{
         z-index: 99;
         position:absolute;
-        bottom:0px;
+        
         right:0px;
-        width: 30%;
-       // left:20%;
-       // text-align: center;
+        width: 70%;
+        height:70%;
+        left:15%;
+        bottom:15%;
+        text-align: center;
         font-family: "GeoSans";
-        background: rgba( 255,255,255, .5);
-        border: 1px solid white;
+        background: rgba( 255,255,255, 0);
+        border: 3px solid white;
         padding:20px;
+         /* Hide the text. */
+        text-indent: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+
+        visibility: hidden;
 
       }
       #howTo:hover{
-        background: rgba(255, 255,255,1);
+        background: rgba(255, 255,255,.5);
+        /* Hide the text. */
+        text-indent: 0%;
+        white-space: normal;
+        overflow: initial;
       }
       a{
         text-decoration: none;
         color:#000;
-        font-size: 50px;
+        font-size: 100px;
       }
       a:hover{
         text-decoration: underline;
@@ -38,18 +50,19 @@
 
   <body>
 
-    <a href="http://voteforbernie.org/"><div id="howTo"> Click here to learn how to vote for Bernie Sanders in your state</div></a>
+    <a href="http://voteforbernie.org/"><div id="howTo">Click here to learn how to vote for Bernie Sanders in your state</div></a>
 
     <script src="lib/three.min.js">             </script>
     <script src="lib/jquery.min.js">            </script>
     <script src="MouseMoveControls.js">     </script>
+    <script src="ObjectControls.js">     </script>
     <script src="lib/stats.min.js">             </script>
     <script src="lib/underscore.js">             </script>
     
     <script src="lib/AudioController.js">       </script>
     <script src="lib/AudioTexture.js">       </script>
-    <script src="lib/Stream.js">       </script>
-    <script src="lib/UserAudio.js">       </script>
+    <script src="lib/AudioBuffer.js">       </script>
+    <script src="lib/BufferedAudio.js">       </script>
    
 
     <script src="lib/ShaderLoader.js"></script>
@@ -63,6 +76,8 @@
 
       var matcap = THREE.ImageUtils.loadTexture('img/rough-aluminium.jpg');
       var text = THREE.ImageUtils.loadTexture('BERNIESDF.png');
+      var twitText = THREE.ImageUtils.loadTexture('twitter_2.png');
+      var fbText = THREE.ImageUtils.loadTexture('facebook_2.png');
 
       var uniforms = {
 
@@ -100,11 +115,35 @@
       shaders.load( 'vs-hologram' , 'hologram' , 'vertex' );
       shaders.load( 'fs-hologram' , 'hologram' , 'fragment' );
 
+      var audio = new AudioController();
+
+      var aBuff = new AudioBuffer( audio , "audio/pureSound.mp3" );
+ 
+      aBuff.addLoadEvent(function(){
+    
+        console.log( this );
+        twitSound = new BufferedAudio( this.buffer , audio.ctx , audio.gain , false );
+
+      }.bind( aBuff));
+
+      var aFBuff = new AudioBuffer( audio , "audio/crackleSound.mp3" );
+ 
+      aFBuff.addLoadEvent(function(){
+    
+        console.log( this );
+        fbSound = new BufferedAudio( this.buffer , audio.ctx , audio.gain , false );
+
+      }.bind( aFBuff));
+
+
+
+    //audioBuffers.push( aBuff );
+
 
       var title;
 
       var blipSpeed = 1;
-      var blipSlowdown = .1;
+      var blipSlowdown = .8;
 
 
       function init(){
@@ -113,10 +152,11 @@
         var h = window.innerHeight;
 
         camera = new THREE.PerspectiveCamera( 65 , w/h , .01 , 100 );
-        camera.position.z = .4;
+        camera.position.z = .3;
 
         controls = new THREE.MouseMoveControls( camera );
         scene = new THREE.Scene();
+        objectControls = new ObjectControls( camera );
 
         geometry = new THREE.PlaneGeometry( 2, 2 );
         geometry.computeTangents();
@@ -159,6 +199,92 @@
 
         }
 
+        var u = {
+
+          time: uniforms.time, 
+
+          t_matcap:{ type:"t" , value: matcap },
+          t_text:{type:"t", value:twitText},
+          //t_audio:{type:"t",value:null},
+          stepDepth:{ type:"f" , value: .07 },
+          oscillationSize:{ type:"f" , value: 30. },
+          lightPos:{ type:"v3" , value: new THREE.Vector3( 2 , 0 , 0 ) },
+
+        }
+
+        geometry = new THREE.PlaneGeometry( .5 , .5 );
+        geometry.computeTangents();
+        var m2 = Hologram( 
+            geometry, 
+            u,
+            shaders.vertexShaders.hologram,
+            shaders.fragmentShaders.hologram
+         );
+
+        m2.position.x = .12; 
+        m2.position.y = -.1; 
+        m2.position.z = 0.06; 
+
+        m2.scale.x = .1;
+        m2.scale.y = .1;
+        m2.scale.z = .1;
+
+        m2.rotation.y = Math.PI;
+
+        m2.hoverOver = function(){
+          blip();
+          console.log('ss');
+          if( twitSound ){ twitSound.play();}
+        }
+        objectControls.add( m2 );
+
+        //m2.lookAt( new THREE.Vector3() );
+        cube.add( m2 );
+        meshes.push( m2 );
+
+        var u = {
+
+          time: uniforms.time, 
+
+          t_matcap:{ type:"t" , value: matcap },
+          t_text:{type:"t", value:fbText},
+          //t_audio:{type:"t",value:null},
+          stepDepth:{ type:"f" , value: .07 },
+          oscillationSize:{ type:"f" , value: 30. },
+          lightPos:{ type:"v3" , value: new THREE.Vector3( 2 , 0 , 0 ) },
+
+        }
+
+        geometry = new THREE.PlaneGeometry( .5 , .5 );
+        geometry.computeTangents();
+        var m2 = Hologram( 
+            geometry, 
+            u,
+            shaders.vertexShaders.hologram,
+            shaders.fragmentShaders.hologram
+         );
+
+        m2.position.x = .18; 
+        m2.position.y = -.1; 
+        m2.position.z = 0.06; 
+
+        m2.scale.x = .1;
+        m2.scale.y = .1;
+        m2.scale.z = .1;
+
+        m2.rotation.y = Math.PI;
+
+        m2.hoverOver = function(){
+          blip();
+          console.log('ss');
+          if( fbSound ){ fbSound.play();}
+        }
+        objectControls.add( m2 );
+
+        //m2.lookAt( new THREE.Vector3() );
+        cube.add( m2 );
+        meshes.push( m2 );
+
         scene.add( cube );
 
 
@@ -185,6 +311,8 @@
       }
 
       function animate(){
+
+        objectControls.update();
 
         var d = clock.getDelta();
         uniforms.time.value += d * blipSpeed;
@@ -234,6 +362,7 @@
       function blip(){
 
         blipSpeed += 5;
+
 
       }
 
