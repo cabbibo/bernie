@@ -26,7 +26,7 @@
     <meta property="og:description" content="#FeelTheBern">
 
     <style>
-      body{ margin: 0px; background: #000; }
+      body{ margin: 0px; background: #fff; }
       #howTo{
         z-index: 99;
         position:absolute;
@@ -42,7 +42,7 @@
         //border: 3px solid white;
         padding:20px;
         font-size: 80px;
-        
+
          /* Hide the text. */
         //text-indent: 100%;
        // white-space: nowrap;
@@ -61,7 +61,7 @@
       a{
         text-decoration: none;
         color:#000;
-        font-size: 100px;
+        font-size: 60px;
       }
       a:hover{
         text-decoration: underline;
@@ -97,8 +97,19 @@
 
     <script>
 
+
+    var howTo = document.getElementById("howTo");
+
+    if( !webgl_detect() || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+
+      howTo.innerHTML = "Non Mobile WebGL Required<br/><a href='http://voteforbernie.org/'>Click Here to Learn How to Vote for Bernie</a>"
+      
+      throw new Error('');
+     
+    }
       var howTo = document.getElementById("howTo");
 
+      var bernSound , twitSound , fbSound, infoSound;
 
 
       var matcap = THREE.ImageUtils.loadTexture('img/rough-aluminium.jpg');
@@ -553,6 +564,35 @@
 
       }
 
+function webgl_detect(return_context)
+{
+    if (!!window.WebGLRenderingContext) {
+        var canvas = document.createElement("canvas"),
+             names = ["webgl", "experimental-webgl", "moz-webgl", "webkit-3d"],
+           context = false;
+
+        for(var i=0;i<4;i++) {
+            try {
+                context = canvas.getContext(names[i]);
+                if (context && typeof context.getParameter == "function") {
+                    // WebGL is enabled
+                    if (return_context) {
+                        // return WebGL object if the function's argument is present
+                        return {name:names[i], gl:context};
+                    }
+                    // else, return just true
+                    return true;
+                }
+            } catch(e) {}
+        }
+
+        // WebGL is supported, but disabled
+        return false;
+    }
+
+    // WebGL not supported
+    return false;
+}
 
     </script>
 
