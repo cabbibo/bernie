@@ -54,11 +54,16 @@ vec4 volumeColor( vec3 ro , vec3 rd , mat3 iBasis ){
     vec3 c = hsv( p.x * 6.  + lu / 20. + sin( time  * .1 ), 1. , .4 ); 
      col += t.a * c  + ((1.-t.a) * (1.-c)) ;
      col *= ((lu+1.)/2. + t.a);
+
+     col = desaturate( col ,.1+ .4 *  (float(STEPS)  - float( i )) / float(STEPS));
+     
      //col +=  c;//  + ((1.-t.a) * (1.-c)) ;
     
     //col *= ((lu+.8)/.9);
 
-    if( lu + t.a > (-p.x  * (4. + 3. *sin(time * .3))) + ( .8 + .2 * sin( time * .37 ) + .4 * sin( time * .1 )) ){ col =  float( STEPS ) * normalize( col );  break; }
+    if( t.a + (lu -.05) > 1. && i == 0 ){ col = float( STEPS ) * normalize( col );  break;}
+
+    if( lu + t.a > (-p.x  * (6. + 3. *sin(time * .3))) + ( .8 + .2 * sin( time * .37 ) + .4 * sin( time * .1 )) ){ col = float( STEPS ) * normalize( col );  break; }
 
   } 
 
@@ -66,7 +71,7 @@ vec4 volumeColor( vec3 ro , vec3 rd , mat3 iBasis ){
 
   vec4 fC = vec4( col , 1. ) / float( STEPS );
 
-  fC.xyz = mix( fC.xyz , vec3( 1. ) - fC.xyz , hovered );
+  fC.xyz = mix( fC.xyz , desaturate( fC.xyz , -2.6 ) , hovered );
    return vec4(  fC.xyz , 1.);
 
 
